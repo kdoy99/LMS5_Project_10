@@ -5,38 +5,53 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Project_10"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800">
+        Title="DD (Don't be Drowsy)" Height="600" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="5*"/>
+            <RowDefinition Height="8*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="0.5*"/>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="0.5*"/>
+            <ColumnDefinition Width="0.5*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
 
+        <Grid Grid.Row="1" Grid.Column="1" >
+            <Label x:Name="IPlabel" Content="IP" FontSize="16" VerticalContentAlignment="Center" HorizontalContentAlignment="Left"  FontWeight="Bold"/>
+            <TextBox x:Name="IP" Text="127.0.0.1" FontSize="16"  VerticalContentAlignment="Center" FontWeight="Bold" Margin="30,10,10,10"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="2" Margin="10,10,10,10">
+            <Button Name="connectButton" Content="서버 연결" FontSize="16" FontWeight="Bold"/>
+        </Grid>
+        
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Margin="10,10,10,10">
             <Image Name="webcamImage"/>
         </Grid>
 
-        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,10,10,10">
-            <TextBox x:Name="userInfo" Text="현재 사용자 상태 : " FontSize="24"  VerticalContentAlignment="Center" FontWeight="Bold"/>
+        <Grid Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <ListBox d:ItemsSource="{d:SampleData ItemCount=5}"/>
         </Grid>
 
-        <Grid Grid.Row="3" Grid.Column="3" Margin="10,10,10,10">
-            <Button x:Name="startButton" Content="웹캠 연결" FontSize="24" FontWeight="Bold" Click="startButton_Click"/>
+        <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="10,10,10,10">
+            <TextBox x:Name="userInfo" Text="현재 사용자 상태 : " FontSize="16"  VerticalContentAlignment="Center" FontWeight="Bold" IsReadOnly="True"/>
         </Grid>
 
-        <Grid Grid.Row="3" Grid.Column="4" Margin="10,10,10,10">
-            <Button x:Name="closeButton" Content="연결 해제" FontSize="24" FontWeight="Bold" Click="closeButton_Click" />
+        <Grid Grid.Row="3" Grid.Column="5" Margin="10,10,10,10">
+            <Button x:Name="startButton" Content="웹캠 연결" FontSize="16" FontWeight="Bold" Click="startButton_Click"/>
+        </Grid>
+
+        <Grid Grid.Row="3" Grid.Column="6" Margin="10,10,10,10">
+            <Button x:Name="closeButton" Content="연결 해제" FontSize="16" FontWeight="Bold" Click="closeButton_Click" />
         </Grid>
 
     </Grid>
