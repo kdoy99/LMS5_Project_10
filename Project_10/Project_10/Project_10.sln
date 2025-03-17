@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Project_10", "Project_10\Project_10.csproj", "{10A4CD8F-2AA1-492A-A11A-E67DC3343FD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DD_client_test", "..\..\P_10_Python\DD_client_test\DD_client_test\DD_client_test.csproj", "{E9BA5C76-DFB4-4EF1-BB1A-C0AA1059EB73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{10A4CD8F-2AA1-492A-A11A-E67DC3343FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10A4CD8F-2AA1-492A-A11A-E67DC3343FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10A4CD8F-2AA1-492A-A11A-E67DC3343FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9BA5C76-DFB4-4EF1-BB1A-C0AA1059EB73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9BA5C76-DFB4-4EF1-BB1A-C0AA1059EB73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9BA5C76-DFB4-4EF1-BB1A-C0AA1059EB73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9BA5C76-DFB4-4EF1-BB1A-C0AA1059EB73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

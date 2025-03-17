@@ -119,9 +119,7 @@ namespace Project_10
 
                 encoder.Frames.Add(BitmapFrame.Create((BitmapSource)webcamImage.Source));
 
-                string userName = Environment.UserName;
-                string path = $"C:\\Users\\{userName}\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\";
-                string combinePath = Path.Combine(path, "capturedImage.png");
+                string combinePath = Path.Combine(App.path, "capturedImage.png");
 
                 using (FileStream fs = new FileStream(combinePath, FileMode.Create))
                 {
