@@ -9,7 +9,7 @@ namespace Project_10
     /// </summary>
     public partial class App : Application
     {
-        string userName = Environment.UserName;
+        static string userName = Environment.UserName;
         public static string path = $"C:\\Users\\{userName}\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\";
     }
 
