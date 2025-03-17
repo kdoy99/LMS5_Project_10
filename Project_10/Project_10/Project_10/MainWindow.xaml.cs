@@ -10,10 +10,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using System.Data;
+using System.Windows.Threading;
 
 namespace Project_10
 {
@@ -23,6 +23,9 @@ namespace Project_10
         private FilterInfoCollection videoDevices;
         // 선택된 비디오 장치에서 영상을 캡처하는 객체
         private VideoCaptureDevice videoSource;
+        // 타이머 변수
+        private DispatcherTimer timer = new DispatcherTimer();
+        private bool timerOnOff = false;
 
         public MainWindow()
         {
@@ -58,6 +61,8 @@ namespace Project_10
                 videoSource.NewFrame -= new NewFrameEventHandler(video_NewFrame); // 이벤트 핸들러 제거
                 videoSource = null; // 객체 해제
             }
+            // 타이머 종료
+            timer.Stop();
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -90,6 +95,38 @@ namespace Project_10
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad; // 이미지 캐싱 옵션 설정
                 bitmapImage.EndInit();
                 return bitmapImage;
+            }
+        }
+
+        private void connectButton_Click(object sender, RoutedEventArgs e)
+        {
+            timer.Interval = TimeSpan.FromMilliseconds(500); // 0.5초
+            timer.Tick += new EventHandler(timer_Tick); // 타이머 1회당 함수 발동
+            timer.Start(); // 타이머 시작
+        }
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            // 타이머 1번 발생 = timer_Tick
+            captureImage();
+        }
+
+        private void captureImage()
+        {
+            if (webcamImage.Source != null)
+            {
+                BitmapEncoder encoder = new PngBitmapEncoder();
+
+                encoder.Frames.Add(BitmapFrame.Create((BitmapSource)webcamImage.Source));
+
+                string userName = Environment.UserName;
+                string path = $"C:\\Users\\{userName}\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\";
+                string combinePath = Path.Combine(path, "capturedImage.png");
+
+                using (FileStream fs = new FileStream(combinePath, FileMode.Create))
+                {
+                    encoder.Save(fs);
+                }
             }
         }
     }

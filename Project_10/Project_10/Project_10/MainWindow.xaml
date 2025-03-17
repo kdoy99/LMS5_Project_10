@@ -31,7 +31,7 @@
         </Grid>
 
         <Grid Grid.Row="1" Grid.Column="2" Margin="10,10,10,10">
-            <Button Name="connectButton" Content="서버 연결" FontSize="16" FontWeight="Bold"/>
+            <Button Name="connectButton" Content="서버 연결" FontSize="16" FontWeight="Bold" Click="connectButton_Click"/>
         </Grid>
         
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Margin="10,10,10,10">
