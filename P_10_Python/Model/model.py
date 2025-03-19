@@ -77,6 +77,7 @@ print("테스트 데이터 개수:", test_images.shape[0])
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.callbacks import EarlyStopping
 
 
 # 간단한 모델 정의
@@ -89,8 +90,10 @@ model = Sequential([
 # 모델 컴파일
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 # 모델 학습
-model.fit(train_images, train_labels, epochs=10, batch_size = 8, validation_data=(test_images, test_labels))
+model.fit(train_images, train_labels, epochs=2000, batch_size=8, validation_data=(test_images, test_labels), callbacks=[early_stopping])
+
 
 model.save('my_model.h5')
 

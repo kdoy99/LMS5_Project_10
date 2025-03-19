@@ -10,7 +10,6 @@ model = load_model('my_model.h5')
 # 라벨 인코딩 (예: "awake" -> 0, "drowsy" -> 1)
 class_labels = {'awake': 0, 'drowsy': 1}
 
-
 # 이미지 전처리 함수
 def prepare_image(img_path):
     # 이미지 로드
@@ -19,7 +18,6 @@ def prepare_image(img_path):
     img_array = np.expand_dims(img_array, axis=0)  # 배치 차원 추가
     img_array = img_array / 255.0  # 정규화
     return img_array
-
 
 # 예측 함수
 def predict_image_class(img_path):
@@ -35,9 +33,8 @@ def predict_image_class(img_path):
         if predicted_class == index:
             return label
 
-
 # 예시 이미지 경로
-img_path = "C:\\Users\\jihye\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\capturedImage.png"
+img_path = "C:\\Users\\jihye\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\1234.jpg"
 
 # 예측 결과 출력
 prediction = predict_image_class(img_path)
