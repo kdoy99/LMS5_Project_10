@@ -25,11 +25,21 @@ namespace Project_10
         private VideoCaptureDevice videoSource;
         // 타이머 변수
         private DispatcherTimer timer = new DispatcherTimer();
-        private bool timerOnOff = false;
-
+        
         public MainWindow()
         {
             InitializeComponent();
+            this.Closed += Window_Closed;  // 창 닫을 때 웹캠도 꺼지게
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            if (videoSource != null && videoSource.IsRunning)
+            {
+                videoSource.SignalToStop();  // 웹캠 연결 종료
+                videoSource.NewFrame -= new NewFrameEventHandler(video_NewFrame);  // 프레임 이벤트 핸들러 제거
+                videoSource = null;
+            }
         }
 
         private void startButton_Click(object sender, RoutedEventArgs e)
@@ -98,7 +108,7 @@ namespace Project_10
             }
         }
 
-        private void connectButton_Click(object sender, RoutedEventArgs e)
+        private void connectButton_Click(object sender, RoutedEventArgs e) // 서버 연결, 타이머 작동
         {
             timer.Interval = TimeSpan.FromMilliseconds(500); // 0.5초
             timer.Tick += new EventHandler(timer_Tick); // 타이머 1회당 함수 발동
@@ -111,7 +121,7 @@ namespace Project_10
             captureImage();
         }
 
-        private void captureImage()
+        private void captureImage() // 이미지 캡쳐
         {
             if (webcamImage.Source != null)
             {
@@ -126,6 +136,6 @@ namespace Project_10
                     encoder.Save(fs);
                 }
             }
-        }
+        }        
     }
 }

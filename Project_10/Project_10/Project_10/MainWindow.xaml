@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Project_10"
         mc:Ignorable="d"
-        Title="DD (Don't be Drowsy)" Height="600" Width="800">
+        Title="DD (Don't be Drowsy)" Height="600" Width="800" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
