@@ -34,7 +34,7 @@ def predict_image_class(img_path):
             return label
 
 # 예시 이미지 경로
-img_path = "C:\\Users\\jihye\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\1234.jpg"
+img_path = "C:\\Users\\jihye\\Desktop\\LMS5_Project_10\\Project_10\\Project_10\\Project_10\\Image\\capturedImage.png"
 
 # 예측 결과 출력
 prediction = predict_image_class(img_path)
