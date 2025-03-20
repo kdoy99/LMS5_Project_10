@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 # 모델 불러오기
-model = load_model('my_model.h5')
+model = load_model('predict_folder/my_model.h5')
 
 # 라벨 인코딩 (예: "awake" -> 0, "drowsy" -> 1)
 class_labels = {'awake': 0, 'drowsy': 1}

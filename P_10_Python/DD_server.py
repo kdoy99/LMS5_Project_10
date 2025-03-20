@@ -6,10 +6,12 @@ import socket
 import threading
 import time
 
-model = YOLO("Model/model_DD2.pt")
+model = YOLO("Model/best.pt")
+drowsy_stack = 0
 # binder함수는 서버에서 accept가 되면 생성되는 socket 인스턴스를 통해 client로부터 데이터를 받으면 echo형태로 재송신하는 메소드이다.
 def binder(client_socket, addr):
     # 커넥션이 되면 접속 주소가 나온다.
+    global drowsy_stack
     print('Connected by', addr)
     try:
         # 접속 상태에서는 클라이언트로부터 받을 데이터를 무한 대기한다.
@@ -50,22 +52,49 @@ def binder(client_socket, addr):
 
             results = model.predict(source=save_dir, save=True, project="Model/predict_folder", name="predict_result")
 
-            detected_image_path = os.path.join("Model", "predice_result", filename)
+            detected_image_path = os.path.join("Model", "predict_result", filename)
             if not os.path.exists(detected_image_path) or os.path.getsize(detected_image_path) == 0:
-                print(f"감지된 이미지 X : {detected_image_path}")
-                continue
+                print(f"감지된 이미지 : {detected_image_path}")
+
+
+            drowsy_check = False
+            all_awake = True
+
+            for result in results:
+                for detection in result.boxes.data:
+                    class_id = int(detection[5])
+                    confidence = float(detection[4])
+                    class_name = model.names[class_id]
+                    print(f"Class: {class_name}, Confidence: {confidence}")
+                    print(f"현재 졸음 스택 : {drowsy_stack}")
+                    if class_name=='drowsy' and not drowsy_check:
+                        drowsy_stack += 1
+                        drowsy_check = True
+                        all_awake = False
+                    elif class_name == 'awake':
+                        continue
+                drowsy_check = False
+
+            if all_awake:
+                drowsy_stack = 0
+
+            if drowsy_stack > 3:
+                message = 'Drowsy'
+                message_length = len(message)
+                client_socket.send(message_length.to_bytes(4, byteorder='little'))
+
+                client_socket.send(message.encode('utf-8'))
+                print(f"클라이언트에 메시지 전송 완료")
+            else:
+                message = 'Awake'
+                message_length = len(message)
+                client_socket.send(message_length.to_bytes(4, byteorder='little'))
+
+                client_socket.send(message.encode('utf-8'))
+                print(f"클라이언트에 메시지 전송 완료")
 
 
 
-            # with open(detected_image_path, 'rb') as f:
-            #     image_data = f.read()
-            #
-            # file_size = len(image_data)
-            # client_socket.sendall(file_size.to_bytes(4, byteorder="little"))
-            # client_socket.sendall(image_data)
-            # print(f"파일 전송 완료 : ({file_size} bytes)")
-
-        # client_socket.close()
     except:
         # 접속이 끊기면 except가 발생한다.
         print("except : ", addr)

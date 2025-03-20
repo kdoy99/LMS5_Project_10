@@ -16,6 +16,7 @@ using System.Data;
 using System.Windows.Threading;
 using System.Net.Sockets;
 using System.Net;
+using System.Media;
 
 namespace Project_10
 {
@@ -27,6 +28,8 @@ namespace Project_10
         private VideoCaptureDevice videoSource;
         // 타이머 변수
         private DispatcherTimer timer = new DispatcherTimer();
+
+        
 
         TcpClient client;
         NetworkStream stream;
@@ -144,50 +147,59 @@ namespace Project_10
                 
                 stream.Write(fileSizeBytes, 0, 4);
                 stream.Write(fileBytes, 0, fileBytes.Length);
-                
-                
 
-                //// 3️. 감지된 파일 크기 수신
-                //byte[] sizeBuffer = new byte[4];
-                //int bytesRead = 0;
-                //while (bytesRead < 4)
-                //{
-                //    int read = stream.Read(sizeBuffer, bytesRead, 4 - bytesRead);
-                //    if (read == 0) throw new Exception("서버 연결이 끊어졌습니다.");
-                //    bytesRead += read;
-                //}
-                //int detectedFileSize = BitConverter.ToInt32(sizeBuffer, 0);
-                //Console.WriteLine($"감지된 이미지 크기: {detectedFileSize} bytes");
 
-                //// 4️. 감지된 파일 데이터 수신
-                //string receiveImagePath = Path.Combine(App.path, "receivedImage.png");
-                //using (FileStream fs = new FileStream(receiveImagePath, FileMode.Create, FileAccess.Write))
-                //{
-                //    byte[] buffer = new byte[4096];
-                //    int totalReceived = 0;
-                //    while (totalReceived < detectedFileSize)
-                //    {
-                //        int chunkSize = stream.Read(buffer, 0, buffer.Length);
-                //        if (chunkSize == 0)
-                //        {
-                //            Console.WriteLine("서버와 연결 끊어짐");
-                //        }
-                //        fs.Write(buffer, 0, chunkSize);
-                //        totalReceived += chunkSize;
-                //    }
-                //}
-                
 
-                //// 5. 이미지 클라이언트에 반영
-                //Dispatcher.Invoke(() =>
-                //{
-                //    BitmapImage bi = new BitmapImage();
-                //    bi.BeginInit();
-                //    bi.UriSource = new Uri(receiveImagePath, UriKind.Absolute);
-                //    bi.CacheOption = BitmapCacheOption.OnLoad;
-                //    bi.EndInit();
-                //    resultImage.Source = bi;
-                //});
+                // 3️. 감지된 메시지 크기 수신
+                byte[] sizeBuffer = new byte[4];
+                int bytesRead = 0;
+                while (bytesRead < 4)
+                {
+                    int read = stream.Read(sizeBuffer, bytesRead, 4 - bytesRead);
+                    if (read == 0) throw new Exception("서버 연결이 끊어졌습니다.");
+                    bytesRead += read;
+                }
+                int messageLength = BitConverter.ToInt32(sizeBuffer, 0);
+                Console.WriteLine($"받은 메시지 크기: {messageLength} bytes");
+
+                // 4️. 메시지 수신
+                byte[] messageBuffer = new byte[messageLength];
+                int totalReceived = 0;
+                while (totalReceived < messageLength)
+                {
+                    int read = stream.Read(messageBuffer, totalReceived, messageLength - totalReceived);
+                    if (read == 0)
+                        throw new Exception("서버와 연결이 끊어졌습니다.");
+                    totalReceived += read;
+                }
+
+                // 4. 메시지 출력
+                string message = Encoding.UTF8.GetString(messageBuffer);
+                Console.WriteLine($"서버로부터 받은 메시지: {message}");
+
+                string currentTime = DateTime.Now.ToString("yy-MM-dd HH:mm:ss");
+
+                // 메시지 UI에 표시
+                Dispatcher.Invoke(() =>
+                {
+                    userInfo.Text = "현재 사용자 상태 : " + message;
+
+                    var lines = logBox.Text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
+                    if (lines.Count >= 100)
+                    {
+                        lines.RemoveAt(0); // 첫 번째 줄 삭제
+                    }
+
+                    // 날짜와 시간, 메시지를 추가
+                    lines.Add($"[{currentTime}] 사용자 상태 : {message}");
+
+                    logBox.Text = string.Join("\r\n", lines); // 나머지 줄들을 다시 합침
+
+                    if (message == "Drowsy")
+                    {
+                        SystemSounds.Beep.Play();
+                    }
+                });
             }
             catch (Exception ex)
             {
