@@ -1,9 +1,12 @@
 # 소켓을 사용하기 위해서는 socket을 import해야 한다.
-import socket, threading
-from os.path import exists
-import sys
 import os
+import cv2
+from ultralytics import YOLO
+import socket
+import threading
+import time
 
+model = YOLO("Model/model_DD2.pt")
 # binder함수는 서버에서 accept가 되면 생성되는 socket 인스턴스를 통해 client로부터 데이터를 받으면 echo형태로 재송신하는 메소드이다.
 def binder(client_socket, addr):
     # 커넥션이 되면 접속 주소가 나온다.
@@ -14,47 +17,55 @@ def binder(client_socket, addr):
         while True:
             # # socket의 recv함수는 연결된 소켓으로부터 데이터를 받을 대기하는 함수입니다. 최초 4바이트를 대기합니다.
             data = client_socket.recv(4)
+            if not data:
+                break;
             # # 최초 4바이트는 전송할 데이터의 크기이다. 그 크기는 big 엔디언으로 byte에서 int형식으로 변환한다.
             # # C#의 BitConverter는 big엔디언으로 처리된다. >> little엔디언으로 처리됨
             length = int.from_bytes(data, "little")
 
             filename = 'transferredImage.png'
-            # 다시 데이터를 수신한다.
-            data = client_socket.recv(length)
-            data_transferred = 0
+            save_dir = os.path.join(os.getcwd(), filename)
 
-            nowdir = os.getcwd()
-            save_dir = os.path.join(nowdir, filename)
-            print(save_dir)
-
+            received = 0
             with open(save_dir, 'wb') as f:
-                try:
-                    # while data:
-                        f.write(data)
-                        data_transferred += len(data)
-                        # data = client_socket.recv(4096)
-                except Exception as ex:
-                    print(ex)
+                while received < length:
+                    chunk = client_socket.recv(min(4096, length - received))
+                    if not chunk:
+                        print("데이터 수신 중단")
+                        break
+                    f.write(chunk)
+                    received += len(chunk)
 
-            print("파일 %s 받기 완료 : 전송량 %d " % (filename, data_transferred))
-            # client_socket.close()
+            print(f"{filename} 수신 완료 ({received}/{length} bytes)")
 
-            # # # 수신된 데이터를 str형식으로 decode한다.
-            # msg = data.decode()
-            # # 수신된 메시지를 콘솔에 출력한다.
-            # print('Received from', addr, msg)
+            time.sleep(0.1)
+            if os.path.getsize(save_dir) != length:
+                print(f"저장된 파일 크기 불일치")
+                continue
+
+            img = cv2.imread(save_dir)
+            if img is None:
+                print(f"OpenCV : {save_dir} 읽기 불가능")
+                continue
+
+            results = model.predict(source=save_dir, save=True, project="Model/predict_folder", name="predict_result")
+
+            detected_image_path = os.path.join("Model", "predice_result", filename)
+            if not os.path.exists(detected_image_path) or os.path.getsize(detected_image_path) == 0:
+                print(f"감지된 이미지 X : {detected_image_path}")
+                continue
+
+
+
+            # with open(detected_image_path, 'rb') as f:
+            #     image_data = f.read()
             #
-            # # 수신된 메시지 앞에 「echo:」 라는 메시지를 붙힌다.
-            # msg = "echo : " + msg
-            # # 바이너리(byte)형식으로 변환한다.
-            # data = msg.encode()
-            # # 바이너리의 데이터 사이즈를 구한다.
-            # length = len(data)
-            # # 데이터 사이즈를 little 엔디언 형식으로 byte로 변환한 다음 전송한다.
-            # client_socket.sendall(length.to_bytes(4, byteorder='little'))
-            # # 데이터를 클라이언트로 전송한다.
-            # client_socket.sendall(data)
-        client_socket.close()
+            # file_size = len(image_data)
+            # client_socket.sendall(file_size.to_bytes(4, byteorder="little"))
+            # client_socket.sendall(image_data)
+            # print(f"파일 전송 완료 : ({file_size} bytes)")
+
+        # client_socket.close()
     except:
         # 접속이 끊기면 except가 발생한다.
         print("except : ", addr)

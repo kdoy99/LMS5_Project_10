@@ -39,8 +39,9 @@
         </Grid>
 
         <Grid Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="2" Margin="10,10,10,10">
-            <ListBox d:ItemsSource="{d:SampleData ItemCount=5}"/>
+            <ListBox/>
         </Grid>
+            
 
         <Grid Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="10,10,10,10">
             <TextBox x:Name="userInfo" Text="현재 사용자 상태 : " FontSize="16"  VerticalContentAlignment="Center" FontWeight="Bold" IsReadOnly="True"/>

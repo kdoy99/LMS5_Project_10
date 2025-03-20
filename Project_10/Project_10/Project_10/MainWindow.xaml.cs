@@ -84,19 +84,17 @@ namespace Project_10
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
-            BitmapImage bi;
-            using (var bitmap = (Bitmap)eventArgs.Frame.Clone()) // 프레임을 복사하여 사용
+            Dispatcher.Invoke(() =>
             {
-                bi = BitmapToBitmapImage(bitmap); // Bitmap을 BitmapImage로 변환
-            }
+                BitmapImage bi;
+                using (var bitmap = (Bitmap)eventArgs.Frame.Clone()) // 프레임을 복사하여 사용
+                {
+                    bi = BitmapToBitmapImage(bitmap); // Bitmap을 BitmapImage로 변환
+                }
 
-            bi.Freeze(); // UI 스레드에서 사용하기 위해 Freezing 적용
-
-            // 비동기 처리
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
+                bi.Freeze(); // UI 스레드에서 사용하기 위해 Freezing 적용
                 webcamImage.Source = bi; // UI에 영상 표시
-            }));
+            });
         }
 
         // 비트맵 이미지로 변환
@@ -132,17 +130,68 @@ namespace Project_10
         private void timer_Tick(object sender, EventArgs e)
         {
             // 타이머 1번 발생 = timer_Tick
-            captureImage();
-            string filepath = Path.Combine(App.path, "capturedImage.png");
-            using (Stream fileStream = new FileStream(filepath, FileMode.Open))
+            try
             {
-                long fileLen = fileStream.Length;
-                byte[] rbytes = new byte[fileLen];
+                captureImage();
+                string filepath = Path.Combine(App.path, "capturedImage.png");
 
-                fileStream.Read(rbytes, 0, (int)fileLen);
-                byte[] lenData = BitConverter.GetBytes((int)fileLen);
-                stream.Write(lenData, 0, lenData.Length);
-                stream.Write(rbytes);
+                // 1️. 파일 크기 계싼
+                byte[] fileBytes = File.ReadAllBytes(filepath);
+                byte[] fileSizeBytes = BitConverter.GetBytes(fileBytes.Length);
+
+
+                // 2️. 파일 데이터 비동기 전송 (정확한 크기만큼)
+                
+                stream.Write(fileSizeBytes, 0, 4);
+                stream.Write(fileBytes, 0, fileBytes.Length);
+                
+                
+
+                //// 3️. 감지된 파일 크기 수신
+                //byte[] sizeBuffer = new byte[4];
+                //int bytesRead = 0;
+                //while (bytesRead < 4)
+                //{
+                //    int read = stream.Read(sizeBuffer, bytesRead, 4 - bytesRead);
+                //    if (read == 0) throw new Exception("서버 연결이 끊어졌습니다.");
+                //    bytesRead += read;
+                //}
+                //int detectedFileSize = BitConverter.ToInt32(sizeBuffer, 0);
+                //Console.WriteLine($"감지된 이미지 크기: {detectedFileSize} bytes");
+
+                //// 4️. 감지된 파일 데이터 수신
+                //string receiveImagePath = Path.Combine(App.path, "receivedImage.png");
+                //using (FileStream fs = new FileStream(receiveImagePath, FileMode.Create, FileAccess.Write))
+                //{
+                //    byte[] buffer = new byte[4096];
+                //    int totalReceived = 0;
+                //    while (totalReceived < detectedFileSize)
+                //    {
+                //        int chunkSize = stream.Read(buffer, 0, buffer.Length);
+                //        if (chunkSize == 0)
+                //        {
+                //            Console.WriteLine("서버와 연결 끊어짐");
+                //        }
+                //        fs.Write(buffer, 0, chunkSize);
+                //        totalReceived += chunkSize;
+                //    }
+                //}
+                
+
+                //// 5. 이미지 클라이언트에 반영
+                //Dispatcher.Invoke(() =>
+                //{
+                //    BitmapImage bi = new BitmapImage();
+                //    bi.BeginInit();
+                //    bi.UriSource = new Uri(receiveImagePath, UriKind.Absolute);
+                //    bi.CacheOption = BitmapCacheOption.OnLoad;
+                //    bi.EndInit();
+                //    resultImage.Source = bi;
+                //});
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"클라이언트 오류: {ex.Message}");
             }
         }
 
