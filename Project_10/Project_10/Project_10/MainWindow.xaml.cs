@@ -79,10 +79,13 @@ namespace Project_10
                 videoSource.NewFrame -= new NewFrameEventHandler(video_NewFrame); // 이벤트 핸들러 제거
                 videoSource = null; // 객체 해제
             }
+            
+            // 소켓 닫음
+            stream.Close();
+            client.Close();
+
             // 타이머 종료
             timer.Stop();
-            // 소켓 닫음
-            client.Close();
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -173,7 +176,7 @@ namespace Project_10
                     totalReceived += read;
                 }
 
-                // 4. 메시지 출력
+                // 5. 메시지 출력
                 string message = Encoding.UTF8.GetString(messageBuffer);
                 Console.WriteLine($"서버로부터 받은 메시지: {message}");
 
@@ -195,7 +198,7 @@ namespace Project_10
 
                     logBox.Text = string.Join("\r\n", lines); // 나머지 줄들을 다시 합침
 
-                    if (message == "Drowsy")
+                    if (message == "Drowsy") // 졸음 판정이면 알림소리 울림
                     {
                         SystemSounds.Beep.Play();
                     }
@@ -213,13 +216,13 @@ namespace Project_10
             {
                 BitmapEncoder encoder = new PngBitmapEncoder();
 
-                encoder.Frames.Add(BitmapFrame.Create((BitmapSource)webcamImage.Source));
+                encoder.Frames.Add(BitmapFrame.Create((BitmapSource)webcamImage.Source)); // 웹캠 프레임 기반으로 이미지 비트맵 생성
 
                 string combinePath = Path.Combine(App.path, "capturedImage.png");
 
                 using (FileStream fs = new FileStream(combinePath, FileMode.Create))
                 {
-                    encoder.Save(fs);
+                    encoder.Save(fs); // 만들어둔 경로, 파일 이름에 이미지 저장
                 }
             }
         }        
