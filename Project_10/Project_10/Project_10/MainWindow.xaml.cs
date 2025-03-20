@@ -14,6 +14,8 @@ using AForge.Video;
 using AForge.Video.DirectShow;
 using System.Data;
 using System.Windows.Threading;
+using System.Net.Sockets;
+using System.Net;
 
 namespace Project_10
 {
@@ -25,7 +27,10 @@ namespace Project_10
         private VideoCaptureDevice videoSource;
         // 타이머 변수
         private DispatcherTimer timer = new DispatcherTimer();
-        
+
+        TcpClient client;
+        NetworkStream stream;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -73,6 +78,8 @@ namespace Project_10
             }
             // 타이머 종료
             timer.Stop();
+            // 소켓 닫음
+            client.Close();
         }
 
         private void video_NewFrame(object sender, NewFrameEventArgs eventArgs)
@@ -110,6 +117,13 @@ namespace Project_10
 
         private void connectButton_Click(object sender, RoutedEventArgs e) // 서버 연결, 타이머 작동
         {
+            // 소켓을 생성한다.
+            client = new TcpClient(new IPEndPoint(0, 0));
+            // Connect 함수로 로컬(127.0.0.1)의 포트 번호 9999로 대기 중인 socket에 접속한다.
+            client.Connect(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9999));
+            // stream 생성
+            stream = client.GetStream();
+
             timer.Interval = TimeSpan.FromMilliseconds(500); // 0.5초
             timer.Tick += new EventHandler(timer_Tick); // 타이머 1회당 함수 발동
             timer.Start(); // 타이머 시작
@@ -119,6 +133,17 @@ namespace Project_10
         {
             // 타이머 1번 발생 = timer_Tick
             captureImage();
+            string filepath = Path.Combine(App.path, "capturedImage.png");
+            using (Stream fileStream = new FileStream(filepath, FileMode.Open))
+            {
+                long fileLen = fileStream.Length;
+                byte[] rbytes = new byte[fileLen];
+
+                fileStream.Read(rbytes, 0, (int)fileLen);
+                byte[] lenData = BitConverter.GetBytes((int)fileLen);
+                stream.Write(lenData, 0, lenData.Length);
+                stream.Write(rbytes);
+            }
         }
 
         private void captureImage() // 이미지 캡쳐
