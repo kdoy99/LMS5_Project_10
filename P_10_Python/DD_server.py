@@ -112,9 +112,6 @@ def binder(client_socket, addr):
 
                 client_socket.send(message.encode('utf-8'))
                 print(f"클라이언트에 {message} 전송 완료")
-                print(results)
-
-
 
     except:
         # 접속이 끊기면 except가 발생한다.
