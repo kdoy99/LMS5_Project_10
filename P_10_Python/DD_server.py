@@ -1,10 +1,12 @@
 # 소켓을 사용하기 위해서는 socket을 import해야 한다.
 import os
 import cv2
+from envs.test.Lib.xml.etree.ElementTree import tostring
 from ultralytics import YOLO
 import socket
 import threading
 import time
+import pymysql
 
 model = YOLO("Model/best.pt")
 drowsy_stack = 0
@@ -113,13 +115,30 @@ def binder(client_socket, addr):
                 client_socket.send(message.encode('utf-8'))
                 print(f"클라이언트에 {message} 전송 완료")
 
-    except:
+            # 로그 저장하기
+            data_scrapper(addr, message)
+
+    except Exception as e:
         # 접속이 끊기면 except가 발생한다.
-        print("except : ", addr)
+        print("except : ", addr, e)
     finally:
         # 접속이 끊기면 socket 리소스를 닫는다.
         client_socket.close()
 
+def data_scrapper(addr, message):
+    # 로그 {PK(AI), IP(addr), DATE, JUDGE} 저장하기
+    now = time.strftime("%y-%m-%d %X")
+    conn = pymysql.connect(host="127.0.0.1", user="root", password="1234", db="dd_db", charset="utf8")
+    cur = conn.cursor()
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS log_table (`LogNo` INT NOT NULL AUTO_INCREMENT, 
+                                                        `IP` VARCHAR(45) NOT NULL, 
+                                                        `TimeStamp` VARCHAR(45) NOT NULL, 
+                                                        `Judge` VARCHAR(45) NOT NULL, 
+                                                        PRIMARY KEY(`LogNo`))""")
+    cur.execute("INSERT INTO log_table (IP, TimeStamp, Judge) VALUES (%s, %s, %s)", (addr[0], now, message))
+    conn.commit()
+    conn.close()
 
 # 소켓을 만든다.
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
