@@ -63,7 +63,7 @@ namespace Project_10
             }
 
             // 첫 번째 비디오 장치를 선택하여 영상 소스로 설정
-            videoSource = new VideoCaptureDevice(videoDevices[0].MonikerString);
+            videoSource = new VideoCaptureDevice(videoDevices[1].MonikerString);
             // 새로운 프레임이 들어올 때마다 처리하는 이벤트 핸들러 등록
             videoSource.NewFrame += new NewFrameEventHandler(video_NewFrame);
             // 비디오 캡처 시작
@@ -202,6 +202,7 @@ namespace Project_10
                     {
                         SystemSounds.Beep.Play();
                     }
+                    logBox.ScrollToEnd();
                 });
             }
             catch (Exception ex)
@@ -225,6 +226,6 @@ namespace Project_10
                     encoder.Save(fs); // 만들어둔 경로, 파일 이름에 이미지 저장
                 }
             }
-        }        
+        }
     }
 }

@@ -1,7 +1,6 @@
 # 소켓을 사용하기 위해서는 socket을 import해야 한다.
 import os
 import cv2
-from envs.test.Lib.xml.etree.ElementTree import tostring
 from ultralytics import YOLO
 import socket
 import threading
