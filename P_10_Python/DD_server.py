@@ -42,7 +42,7 @@ def binder(client_socket, addr):
 
             print(f"{filename} 수신 완료 ({received}/{length} bytes)")
 
-            time.sleep(0.1) # 데이터 범람 방지 텀 지정
+            time.sleep(0.05) # 데이터 범람 방지 텀 지정
             if os.path.getsize(save_dir) != length: # 파일 크기 예상 크기와 동일한지 확인
                 print(f"저장된 파일 크기 불일치")
                 continue
@@ -65,6 +65,7 @@ def binder(client_socket, addr):
 
             drowsy_check = False # 졸음 스택 변수
             all_awake = True # 모두 awake 상태일 때, 졸음 변수 초기화 용
+            detect = False # 아무것도 감지 못했을 때 False
 
             for result in results: # 예측 결과 리스트 확인용 반복문
                 for detection in result.boxes.data: # 감지된 객체 정보 포함한 리스트, 리스트 이므로 또 반복문 사용
@@ -77,8 +78,11 @@ def binder(client_socket, addr):
                         drowsy_stack += 1
                         drowsy_check = True
                         all_awake = False
+                        detect = True
                     elif class_name == 'awake': # 깨어있다면 넘어가기
+                        detect = True
                         continue
+
                 drowsy_check = False # drowsy 상태 초기화
             # 위 변수들이 필요한 이유 : 여러명을 감지해서 여러번의 drowsy가 들어오고, 스택이 여러번 쌓일 수 있기 때문
             # 여러명을 인식해도 drowsy 상태 1명이라도 있으면 스택 쌓이도록 하는 중
@@ -92,14 +96,23 @@ def binder(client_socket, addr):
                 client_socket.send(message_length.to_bytes(4, byteorder='little'))
 
                 client_socket.send(message.encode('utf-8'))
-                print(f"클라이언트에 메시지 전송 완료")
+                print(f"클라이언트에 {message} 전송 완료")
+            elif not detect:
+                message = 'No Detection'
+                message_length = len(message)
+                client_socket.send(message_length.to_bytes(4, byteorder='little'))
+
+                client_socket.send(message.encode('utf-8'))
+                print(f"클라이언트에 {message} 전송 완료")
+
             else: # 그외 깨어있는 상태라고 전송
                 message = 'Awake'
                 message_length = len(message)
                 client_socket.send(message_length.to_bytes(4, byteorder='little'))
 
                 client_socket.send(message.encode('utf-8'))
-                print(f"클라이언트에 메시지 전송 완료")
+                print(f"클라이언트에 {message} 전송 완료")
+                print(results)
 
 
 
