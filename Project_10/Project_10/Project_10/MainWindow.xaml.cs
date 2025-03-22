@@ -29,8 +29,6 @@ namespace Project_10
         // 타이머 변수
         private DispatcherTimer timer = new DispatcherTimer();
 
-        
-
         TcpClient client;
         NetworkStream stream;
 
@@ -145,13 +143,9 @@ namespace Project_10
                 byte[] fileBytes = File.ReadAllBytes(filepath);
                 byte[] fileSizeBytes = BitConverter.GetBytes(fileBytes.Length);
 
-
                 // 2️. 파일 데이터 비동기 전송 (정확한 크기만큼)
-                
                 stream.Write(fileSizeBytes, 0, 4);
                 stream.Write(fileBytes, 0, fileBytes.Length);
-
-
 
                 // 3️. 감지된 메시지 크기 수신
                 byte[] sizeBuffer = new byte[4];

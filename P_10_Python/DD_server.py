@@ -9,8 +9,8 @@ import pymysql
 
 model = YOLO("Model/best.pt")
 drowsy_stack = 0
-# binder함수는 서버에서 accept가 되면 생성되는 socket 인스턴스를 통해 client로부터 데이터를 받으면 echo형태로 재송신하는 메소드이다.
-def binder(client_socket, addr):
+# client_handler는 서버에서 accept가 되면 생성되는 socket 인스턴스를 통해 client로부터 데이터를 받고 모델 판정 결과를 기록하고 전송한다.
+def client_handler(client_socket, addr):
     # 커넥션이 되면 접속 주소가 나온다.
     global drowsy_stack
     print('Connected by', addr)
@@ -155,8 +155,8 @@ try:
         # client로 접속이 발생하면 accept가 발생한다.
         # 그럼 client 소켓과 addr(주소)를 튜플로 받는다.
         client_socket, addr = server_socket.accept()
-        th = threading.Thread(target=binder, args=(client_socket, addr))
-        # 쓰레드를 이용해서 client 접속 대기를 만들고 다시 accept로 넘어가서 다른 client를 대기한다.
+        th = threading.Thread(target=client_handler, args=(client_socket, addr))
+        # client 대응 스레드를 만들고 다시 accept로 넘어가서 다른 client를 대기한다.
         th.start()
 except:
     print("server")
